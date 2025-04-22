@@ -3,19 +3,31 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class FuzzySet:
-    def __init__(self, name, a, b, c):
+    def __init__(self, name, *points):
         self.name = name # Nombre del conjunto difuso
-        self.a = a
-        self.b = b # pico del triangulo, valor de pertenencia=1
-        self.c = c
+        self.points = points
 
     def membership(self, x):
-        if x <= self.a or x >= self.c:
-            return 0
-        elif self.a < x <= self.b:
-            return (x - self.a) / (self.b - self.a) #semenjanza de triangulos
-        elif self.b < x < self.c:
-            return (self.c - x) / (self.c - self.b)
+        if len(self.points) == 3: # Triangular 
+            a, b, c = self.points
+            if x <= a or x >= c: 
+                return 0
+            elif a < x <= b:
+                return (x - a) / (b - a) #Es semejanza de triangulos
+            elif b < x < c:
+                return (c - x) / (c - b)
+            elif x == b:
+                return 1.0
+        elif len(self.points) == 4: #Trapezoidal
+            a, b, c, d = self.points
+            if x <= a or x >= d:
+                return 0
+            elif a < x < b:
+                return (x - a) / (b - a)
+            elif b <= x <= c:
+                return 1
+            elif c < x < d:
+                return (d - x) / (d - c)
 
 class FuzzyVariable:
     def __init__(self, name, sets):
@@ -71,9 +83,9 @@ class FuzzyController:
     
     def graficar_resultado(self):
         theta_val, theta_dot_val = self.last_inputs
-        x_force = np.linspace(-30, 30, 1000)
-        x_theta = np.linspace(-90, 90, 1000)
-        x_theta_dot = np.linspace(-10, 10, 1000)
+        x_force = np.linspace(-31, 31, 1000)
+        x_theta = np.linspace(-91, 91, 1000)
+        x_theta_dot = np.linspace(-11, 11, 1000)
 
         fig, axs = plt.subplots(3, 1, figsize=(10, 12))
 
@@ -114,53 +126,56 @@ class FuzzyController:
         plt.show()
 
 # Ejemplo de definición de variables y conjuntos
-theta_sets = [
-    FuzzySet("NG", -90, -90, -60),
-    FuzzySet("NP", -70, -45, -20),
-    FuzzySet("Z", -30, 0, 30),
-    FuzzySet("PP", 20, 45, 70),
-    FuzzySet("PG", 60, 90, 90),
-]
+def crear_controlador():
+    theta_sets = [
+        FuzzySet("NG", -91, -91, -90, -45),    # trapezoidal: plano y bajada
+        FuzzySet("NP", -90, -45, -0),
+        FuzzySet("Z", -45, 0, 45),
+        FuzzySet("PP", 0, 45, 90),
+        FuzzySet("PG", 45, 90, 91, 91),        # trapezoidal: subida y plano
+    ]
 
-theta_dot_sets = [
-    FuzzySet("NG", -10, -10, -6),
-    FuzzySet("NP", -8, -5, -2),
-    FuzzySet("Z", -3, 0, 3),
-    FuzzySet("PP", 2, 5, 8),
-    FuzzySet("PG", 6, 10, 10),
-]
+    theta_dot_sets = [
+        FuzzySet("NG", -11, -11, -10, -5),
+        FuzzySet("NP", -10, -5, 0),
+        FuzzySet("Z", -5, 0, 5),
+        FuzzySet("PP", 0, 5, 10),
+        FuzzySet("PG", 5, 10, 11, 11),
+    ]
 
-force_sets = [
-    FuzzySet("NG", -30, -30, -20),
-    FuzzySet("NP", -25, -15, -5),
-    FuzzySet("Z", -10, 0, 10),
-    FuzzySet("PP", 5, 15, 25),
-    FuzzySet("PG", 20, 30, 30),
-]
+    force_sets = [
+        FuzzySet("NG", -31, -31, -30, -15),
+        FuzzySet("NP", -30, -15, 0),
+        FuzzySet("Z", -15, 0, 15),
+        FuzzySet("PP", 0, 15, 30),
+        FuzzySet("PG", 15, 30, 31, 31),
+    ]
 
-# Cargar reglas
-rules_data = [
-    ("NG", "NG", "NG"), ("NP", "NG", "NP"), ("Z", "NG", "NP"), ("PP", "NG", "NP"), ("PG", "NG", "Z"),
-    ("NG", "NP", "NG"), ("NP", "NP", "NP"), ("Z", "NP", "NP"), ("PP", "NP", "Z"), ("PG", "NP", "PP"),
-    ("NG", "Z", "NG"), ("NP", "Z", "NP"), ("Z", "Z", "Z"), ("PP", "Z", "PP"), ("PG", "Z", "PG"),
-    ("NG", "PP", "NP"), ("NP", "PP", "Z"), ("Z", "PP", "PP"), ("PP", "PP", "PP"), ("PG", "PP", "PG"),
-    ("NG", "PG", "Z"), ("NP", "PG", "PP"), ("Z", "PG", "PP"), ("PP", "PG", "PP"), ("PG", "PG", "PG"),
-]
+    # Cargar reglas
+    rules_data = [
+        ("NG", "NG", "NG"), ("NP", "NG", "NP"), ("Z", "NG", "NP"), ("PP", "NG", "NP"), ("PG", "NG", "Z"),
+        ("NG", "NP", "NG"), ("NP", "NP", "NP"), ("Z", "NP", "NP"), ("PP", "NP", "Z"), ("PG", "NP", "PP"),
+        ("NG", "Z", "NG"), ("NP", "Z", "NP"), ("Z", "Z", "Z"), ("PP", "Z", "PP"), ("PG", "Z", "PG"),
+        ("NG", "PP", "NP"), ("NP", "PP", "Z"), ("Z", "PP", "PP"), ("PP", "PP", "PP"), ("PG", "PP", "PG"),
+        ("NG", "PG", "Z"), ("NP", "PG", "PP"), ("Z", "PG", "PP"), ("PP", "PG", "PP"), ("PG", "PG", "PG"),
+    ]
 
-rules = [FuzzyRule(a1, a2, c) for a1, a2, c in rules_data]
+    rules = [FuzzyRule(a1, a2, c) for a1, a2, c in rules_data]
 
-# Crear controlador
-theta_var = FuzzyVariable("theta", theta_sets)
-theta_dot_var = FuzzyVariable("theta_dot", theta_dot_sets)
-force_var = FuzzyVariable("force", force_sets)
-controller = FuzzyController(theta_var, theta_dot_var, force_var, rules)
+    return FuzzyController(
+        FuzzyVariable("theta", theta_sets),
+        FuzzyVariable("theta_dot", theta_dot_sets),
+        FuzzyVariable("force", force_sets),
+        rules
+    )
 
-# Ejemplo de uso
-theta_input = -65  # grados
-theta_dot_input = 6  # rad/s
+
+#Ejemplo de uso
+theta_input = -90  # grados
+theta_dot_input = -7  # rad/s
+controller= crear_controlador()
 output_force = controller.infer(theta_input, theta_dot_input)
 print("Fuerza resultante:", output_force)
 
 #graficar
 controller.graficar_resultado()
-
