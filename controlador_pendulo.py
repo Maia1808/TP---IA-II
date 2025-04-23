@@ -147,27 +147,27 @@ class FuzzyController:
 # Ejemplo de definición de variables y conjuntos
 def crear_controlador():
     theta_sets = [
-        FuzzySet("NG", -180, -150, -150, -135),  # plano en extremo izquierdo + pendiente
-        FuzzySet("NP", -180, -90, 0),
-        FuzzySet("Z", -90, 0, 90),
-        FuzzySet("PP", 0, 90, 180),
-        FuzzySet("PG", 135, 150 , 150, 180),     # pendiente + plano en extremo derecho
+        FuzzySet("NG", -180, -150, -150, -115),  # plano en extremo izquierdo + pendiente
+        FuzzySet("NP", -150, -90, -30),
+        FuzzySet("Z", -60, 0, 60),
+        FuzzySet("PP", 30, 90, 150),
+        FuzzySet("PG", 115, 150 , 150, 180),     # pendiente + plano en extremo derecho
     ]
 
     theta_dot_sets = [
-        FuzzySet("NG", -10, -9, -9, -5),
-        FuzzySet("NP", -10, -5, 0),
-        FuzzySet("Z", -5, 0, 5),
-        FuzzySet("PP", 0, 5, 10),
-        FuzzySet("PG", 5, 9, 9, 10),
+        FuzzySet("NG", -10, -9.5, -9.5, -6.5),
+        FuzzySet("NP", -8.5, -5, -1.5),
+        FuzzySet("Z", -3.5, 0, 3.5),
+        FuzzySet("PP", 1.5, 5, 8.5),
+        FuzzySet("PG", 6.5, 9.5, 9.5, 10),
     ]
 
     force_sets = [
-        FuzzySet("NG", -30, -29, -29, -15),
-        FuzzySet("NP", -30, -15, 0),
-        FuzzySet("Z", -15, 0, 15),
-        FuzzySet("PP", 0, 15, 30),
-        FuzzySet("PG", 15, 29, 29, 30),
+        FuzzySet("NG", -30, -28, -28, -20),
+        FuzzySet("NP", -25, -15, -5),
+        FuzzySet("Z", -10, 0, 10),
+        FuzzySet("PP", 5, 15, 25),
+        FuzzySet("PG", 20, 28, 28, 30),
     ]
 
     # Cargar reglas
@@ -187,11 +187,10 @@ def crear_controlador():
         FuzzyVariable("force", force_sets),
         rules
     )
-
 '''
 #Ejemplo de uso
-theta_input = -90  # grados
-theta_dot_input = -7  # rad/s
+theta_input = 180  # grados
+theta_dot_input = 0  # rad/s
 controller= crear_controlador()
 output_force = controller.infer(theta_input, theta_dot_input)
 print("Fuerza resultante:", output_force)
