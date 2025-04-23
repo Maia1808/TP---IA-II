@@ -1,24 +1,22 @@
-
 import numpy as np
 import matplotlib.pyplot as plt
 
 class FuzzySet:
     def __init__(self, name, *points):
-        self.name = name # Nombre del conjunto difuso
+        self.name = name
         self.points = points
 
     def membership(self, x):
-        if len(self.points) == 3: # Triangular 
+        if len(self.points) == 3:  # Triangular
             a, b, c = self.points
-            if x <= a or x >= c: 
+            if x <= a or x >= c:
                 return 0
             elif a < x <= b:
-                return (x - a) / (b - a) #Es semejanza de triangulos
+                return (x - a) / (b - a)
             elif b < x < c:
                 return (c - x) / (c - b)
             elif x == b:
                 return 1.0
-            
         elif len(self.points) == 4: # para los extremos
             a, b, c, d = self.points
             
@@ -30,7 +28,7 @@ class FuzzySet:
                 elif c < x < d:
                     return (d - x) / (d - c)  # pendiente negativa
                 
-            elif b > 0:  # medio trapecio derecho (ej: PG)
+            if b > 0:  # medio trapecio derecho (ej: PG)
                 if  x <= a:
                     return 0
                 if a < x < b:
@@ -39,21 +37,21 @@ class FuzzySet:
                     return 1  # plano horizontal
                 else:
                     return 0
-        return 0 # porque si no se chotea
+
 
 class FuzzyVariable:
     def __init__(self, name, sets):
         self.name = name
-        self.sets = {s.name: s for s in sets} #convierte lista a diccionario
+        self.sets = {s.name: s for s in sets}
 
     def fuzzify(self, x):
         return {name: fs.membership(x) for name, fs in self.sets.items()}
 
 class FuzzyRule:
     def __init__(self, antecedent1, antecedent2, consequent):
-        self.antecedent1 = antecedent1 #conjunto de tita (ej: NP)
-        self.antecedent2 = antecedent2 #conjunto de tita' (ej:PG)
-        self.consequent = consequent #conjunto de F (ej: Z)
+        self.antecedent1 = antecedent1
+        self.antecedent2 = antecedent2
+        self.consequent = consequent
 
     def evaluate(self, theta_memberships, theta_dot_memberships):
         μ1 = theta_memberships[self.antecedent1]
@@ -62,44 +60,41 @@ class FuzzyRule:
 
 class FuzzyController:
     def __init__(self, theta_var, theta_dot_var, force_var, rules):
-        self.theta_var = theta_var # posicion
-        self.theta_dot_var = theta_dot_var #velocidad
-        self.force_var = force_var # fuerza
+        self.theta_var = theta_var
+        self.theta_dot_var = theta_dot_var
+        self.force_var = force_var
         self.rules = rules
-        self.last_output_memberships = {} #para desp graficar
+        self.last_output_memberships = {}
         self.last_centroid = 0
         self.last_inputs = (0, 0)
 
     def infer(self, theta_val, theta_dot_val):
-
         # Aplicar circularidad a theta
         if theta_val > 180:
             theta_val -= 360
         elif theta_val < -180:
             theta_val += 360
 
-        self.last_inputs = (theta_val, theta_dot_val) # para graficar
+        self.last_inputs = (theta_val, theta_dot_val)
         μ_theta = self.theta_var.fuzzify(theta_val)
         μ_theta_dot = self.theta_dot_var.fuzzify(theta_dot_val)
 
         output_memberships = {x: 0 for x in np.linspace(-30, 30, 1000)}
 
-        for rule in self.rules: # crea el eje de salida de F con 1000 puntos
+        for rule in self.rules:
             activation, label = rule.evaluate(μ_theta, μ_theta_dot)
             fuzzy_set = self.force_var.sets[label]
             for x in output_memberships:
                 μ = min(activation, fuzzy_set.membership(x))
                 output_memberships[x] = max(output_memberships[x], μ)
-        
-        self.last_output_memberships = output_memberships #para desp graficar
-        
-        # Defuzzificación por el método del centroide
+
+        self.last_output_memberships = output_memberships
+
         num = sum(x * μ for x, μ in output_memberships.items())
         den = sum(μ for μ in output_memberships.values())
         self.last_centroid = num / den if den != 0 else 0
         return self.last_centroid
-    
-    
+
     def graficar_resultado(self):
         theta_val, theta_dot_val = self.last_inputs
         x_force = np.linspace(-30, 30, 1000)
@@ -108,7 +103,6 @@ class FuzzyController:
 
         fig, axs = plt.subplots(3, 1, figsize=(10, 12))
 
-        # theta
         for label, fs in self.theta_var.sets.items():
             axs[0].plot(x_theta, [fs.membership(x) for x in x_theta], linestyle='--', label=label)
         axs[0].axvline(theta_val, color='red', linestyle='-', label=f'theta = {theta_val}')
@@ -118,7 +112,6 @@ class FuzzyController:
         axs[0].grid(True)
         axs[0].legend()
 
-        # theta'
         for label, fs in self.theta_dot_var.sets.items():
             axs[1].plot(x_theta_dot, [fs.membership(x) for x in x_theta_dot], linestyle='--', label=label)
         axs[1].axvline(theta_dot_val, color='red', linestyle='-', label=f"θ' = {theta_dot_val}")
@@ -128,7 +121,6 @@ class FuzzyController:
         axs[1].grid(True)
         axs[1].legend()
 
-        # fuerza combinada
         for label, fs in self.force_var.sets.items():
             axs[2].plot(x_force, [fs.membership(x) for x in x_force], linestyle='--', label=f"{label} original")
         y_combined = [self.last_output_memberships.get(x, 0) for x in x_force]
@@ -144,7 +136,6 @@ class FuzzyController:
         plt.subplots_adjust(hspace=0.4)
         plt.show()
 
-# Ejemplo de definición de variables y conjuntos
 def crear_controlador():
     theta_sets = [
         FuzzySet("NG", -180, -150, -150, -135),  # plano en extremo izquierdo + pendiente
@@ -170,7 +161,6 @@ def crear_controlador():
         FuzzySet("PG", 15, 29, 29, 30),
     ]
 
-    # Cargar reglas
     rules_data = [
         ("NG", "NG", "NG"), ("NP", "NG", "NP"), ("Z", "NG", "NP"), ("PP", "NG", "NP"), ("PG", "NG", "Z"),
         ("NG", "NP", "NG"), ("NP", "NP", "NP"), ("Z", "NP", "NP"), ("PP", "NP", "Z"), ("PG", "NP", "PP"),
@@ -188,14 +178,11 @@ def crear_controlador():
         rules
     )
 
-'''
-#Ejemplo de uso
-theta_input = -90  # grados
-theta_dot_input = -7  # rad/s
-controller= crear_controlador()
-output_force = controller.infer(theta_input, theta_dot_input)
-print("Fuerza resultante:", output_force)
-
-#graficar
-controller.graficar_resultado()
-'''
+# Ejemplo de uso
+if __name__ == "__main__":
+    theta_input = 200  # probar circularidad
+    theta_dot_input = -7
+    controller = crear_controlador()
+    output_force = controller.infer(theta_input, theta_dot_input)
+    print("Fuerza resultante:", output_force)
+    controller.graficar_resultado()
