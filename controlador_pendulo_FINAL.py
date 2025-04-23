@@ -170,11 +170,11 @@ def crear_controlador():
 
     # Cargar reglas
     rules_data = [
-        ("NG", "NG", "NG"), ("NP", "NG", "NG"), ("Z", "NG", "NG"), ("PP", "NG", "NP"), ("PG", "NG", "Z"),
-        ("NG", "NP", "NG"), ("NP", "NP", "NG"), ("Z", "NP", "NP"), ("PP", "NP", "Z"), ("PG", "NP", "PP"),
-        ("NG", "Z", "NG"), ("NP", "Z", "NP"), ("Z", "Z", "Z"), ("PP", "Z", "PP"), ("PG", "Z", "PG"),
-        ("NG", "PP", "NG"), ("NP", "PP", "Z"), ("Z", "PP", "PP"), ("PP", "PP", "PG"), ("PG", "PP", "PG"),
-        ("NG", "PG", "Z"), ("NP", "PG", "PP"), ("Z", "PG", "PG"), ("PP", "PG", "PG"), ("PG", "PG", "PG"),
+            ("NG", "NG", "NG"), ("NP", "NG", "NG"), ("Z", "NG", "NP"), ("PP", "NG", "NP"), ("PG", "NG", "Z"),
+            ("NG", "NP", "NG"), ("NP", "NP", "NP"), ("Z", "NP", "NP"), ("PP", "NP", "Z"), ("PG", "NP", "PP"),
+            ("NG", "Z", "NG"), ("NP", "Z", "NP"), ("Z", "Z", "Z"), ("PP", "Z", "PP"), ("PG", "Z", "PG"),
+            ("NG", "PP", "NP"), ("NP", "PP", "Z"), ("Z", "PP", "PP"), ("PP", "PP", "PP"), ("PG", "PP", "PG"),
+            ("NG", "PG", "Z"), ("NP", "PG", "PP"), ("Z", "PG", "PG"), ("PP", "PG", "PG"), ("PG", "PG", "PG"),
     ]
 
     rules = [FuzzyRule(a1, a2, c) for a1, a2, c in rules_data]
