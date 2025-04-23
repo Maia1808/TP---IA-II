@@ -4,16 +4,16 @@ from scipy import constants
 from controlador_pendulo import crear_controlador
 
 # Constantes físicas
-CONSTANTE_M = 2 # Masa del carro
-CONSTANTE_m = 1 # Masa de la pertiga
-CONSTANTE_l = 1 # Longitud dela pertiga
+CONSTANTE_M = 1 # Masa del carro
+CONSTANTE_m = 0.1 # Masa de la pertiga
+CONSTANTE_l = 0.5 # Longitud dela pertiga
 
 # Crear controlador difuso
 controller = crear_controlador()
 
 # Simula el modelo del carro-pendulo con lógica difusa
 def simular(t_max, delta_t, theta_0, v_0, a_0):
-    theta = (theta_0 * np.pi) / 180  # radianes
+    theta = np.radians(theta_0)
     v = v_0
     a = a_0
 
@@ -26,22 +26,28 @@ def simular(t_max, delta_t, theta_0, v_0, a_0):
         theta_deg = np.degrees(theta)
         theta_dot = v
         f = controller.infer(theta_deg, theta_dot)
-        a = calcula_aceleracion(theta, v, f)
 
+        a = calcula_aceleracion(theta, v, f)
         v = v + a * delta_t
         theta = theta + v * delta_t + a * (delta_t ** 2) / 2
 
+        theta = (theta + 180) % 360 - 180  # en grados
+        theta = np.radians(theta)          # volver a radianes
 
-        y_theta.append(np.degrees(theta))
-        y_theta_dot.append(theta_dot)
+        # theta = (theta + np.pi) % (2*np.pi) - np.pi
+
+        # Guardar valores para graficar
+
+        y_theta.append(np.degrees(theta))     # conversión solo para graficar
+        y_theta_dot.append(v)
         y_fuerza.append(f)
 
     # Graficar los 3 resultados en subplots
     fig, axs = plt.subplots(3, 1, figsize=(10, 10))
 
     axs[0].plot(x, y_theta)
-    axs[0].set_title("Ángulo θ (grados)")
-    axs[0].set_ylabel("θ (°)")
+    axs[0].set_title("Ángulo θ (radianes)")
+    axs[0].set_ylabel("θ (rad)")
     axs[0].grid()
 
     axs[1].plot(x, y_theta_dot)
@@ -68,4 +74,4 @@ def calcula_aceleracion(theta, v, f):
     return num / denom
 
 # Ejecutar simulación
-simular(t_max=10, delta_t=0.01, theta_0=-90, v_0=0, a_0=0)
+simular(t_max=2, delta_t=0.01, theta_0=150, v_0=0, a_0=0)

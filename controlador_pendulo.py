@@ -172,12 +172,13 @@ def crear_controlador():
 
     # Cargar reglas
     rules_data = [
-        ("NG", "NG", "NG"), ("NP", "NG", "NP"), ("Z", "NG", "NP"), ("PP", "NG", "NP"), ("PG", "NG", "Z"),
-        ("NG", "NP", "NG"), ("NP", "NP", "NP"), ("Z", "NP", "NP"), ("PP", "NP", "Z"), ("PG", "NP", "PP"),
-        ("NG", "Z", "NG"), ("NP", "Z", "NP"), ("Z", "Z", "Z"), ("PP", "Z", "PP"), ("PG", "Z", "PG"),
-        ("NG", "PP", "NP"), ("NP", "PP", "Z"), ("Z", "PP", "PP"), ("PP", "PP", "PP"), ("PG", "PP", "PG"),
-        ("NG", "PG", "Z"), ("NP", "PG", "PP"), ("Z", "PG", "PP"), ("PP", "PG", "PP"), ("PG", "PG", "PG"),
+        ("NG", "NG", "NG"), ("NP", "NG", "NG"), ("Z", "NG", "NG"), ("PP", "NG", "Z"), ("PG", "NG", "NG"),
+        ("NG", "NP", "NG"), ("NP", "NP", "NP"), ("Z", "NP", "NP"), ("PP", "NP", "PP"), ("PG", "NP", "NG"),
+        ("NG", "Z", "PG"), ("NP", "Z", "NP"), ("Z", "Z", "Z"), ("PP", "Z", "PP"), ("PG", "Z", "NG"),
+        ("NG", "PP", "PG"), ("NP", "PP", "NP"), ("Z", "PP", "PP"), ("PP", "PP", "PP"), ("PG", "PP", "PG"),
+        ("NG", "PG", "PG"), ("NP", "PG", "Z"), ("Z", "PG", "PG"), ("PP", "PG", "PG"), ("PG", "PG", "PG"),
     ]
+
 
     rules = [FuzzyRule(a1, a2, c) for a1, a2, c in rules_data]
 
@@ -190,8 +191,8 @@ def crear_controlador():
 
 '''
 #Ejemplo de uso
-theta_input = -90  # grados
-theta_dot_input = -7  # rad/s
+theta_input = -65  # grados
+theta_dot_input = 6  # rad/s
 controller= crear_controlador()
 output_force = controller.infer(theta_input, theta_dot_input)
 print("Fuerza resultante:", output_force)
