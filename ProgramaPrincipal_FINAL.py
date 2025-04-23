@@ -44,6 +44,7 @@ def simular(t_max, delta_t, theta_0, v_0, a_0):
         y_theta_dot.append(v)
         y_fuerza.append(f)
 
+    #para graficar en tiempo real
     #visualizar_en_tiempo_real(y_theta, y_fuerza, x)
 
     # Graficar los 3 resultados en subplots
