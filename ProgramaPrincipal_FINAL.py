@@ -83,5 +83,5 @@ def calcula_aceleracion(theta, v, f):
     return num / denom if abs(denom) > 1e-6 else 0
 
 # Ejecutar simulación
-simular(t_max=5, delta_t=0.01, theta_0=180, v_0=0, a_0=0)
+simular(t_max=5, delta_t=0.01, theta_0=-90, v_0=0, a_0=0)
 
