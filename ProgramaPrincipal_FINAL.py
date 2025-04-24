@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from scipy import constants
 from controlador_pendulo_FINAL import crear_controlador
 from visualizar import visualizar_en_tiempo_real
+import animacion_carrito
 
 
 # Constantes físicas
@@ -69,6 +70,9 @@ def simular(t_max, delta_t, theta_0, v_0, a_0):
     plt.tight_layout()
     plt.show()
 
+    animacion_carrito.visualizar_en_tiempo_real(y_theta, y_fuerza, x)
+
+
 
 # Cálculo de aceleración angular θ'' con fuerza f
 def calcula_aceleracion(theta, v, f):
@@ -80,3 +84,4 @@ def calcula_aceleracion(theta, v, f):
 
 # Ejecutar simulación
 simular(t_max=5, delta_t=0.01, theta_0=180, v_0=0, a_0=0)
+
